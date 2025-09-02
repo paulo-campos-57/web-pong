@@ -186,7 +186,17 @@ export default function LocalMultiplayer() {
             )}
 
             {gameState === 'playing' && (
-                <canvas ref={canvasRef} width={W} height={H} className="border-2 border-white" />
+                <>
+                    <div className='flex justify-around w-5/6'>
+                        <div>
+                            <p className='text-xl'>{player1Name}</p>
+                        </div>
+                        <div>
+                            <p className='text-xl'>{player2Name}</p>
+                        </div>
+                    </div>
+                    <canvas ref={canvasRef} width={W} height={H} className="border-2 border-white" />
+                </>
             )}
 
             {gameState === 'gameOver' && (
