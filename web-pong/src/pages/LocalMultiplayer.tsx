@@ -11,8 +11,10 @@ const P2_X = W - P_W - 10;
 export default function LocalMultiplayer() {
     const navigate = useNavigate();
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
     const [gameState, setGameState] = useState<'setup' | 'playing' | 'gameOver'>('setup');
+    const [isPaused, setIsPaused] = useState(false);
 
     const [player1Name, setPlayer1Name] = useState('Player 1');
     const [player2Name, setPlayer2Name] = useState('Player 2');
@@ -36,11 +38,12 @@ export default function LocalMultiplayer() {
     });
 
     useEffect(() => {
-        if (gameState !== 'playing' || !canvasRef.current) return;
+        if (gameState !== 'playing' || isPaused || !canvasRef.current) return;
 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
+        ctxRef.current = ctx;
 
         let animationFrameId: number;
 
@@ -134,8 +137,10 @@ export default function LocalMultiplayer() {
         document.addEventListener("keydown", handleKeyDown);
         document.addEventListener("keyup", handleKeyUp);
 
-        resetGame();
-        animationFrameId = requestAnimationFrame(loop);
+        if (!isPaused) {
+            resetGame();
+            animationFrameId = requestAnimationFrame(loop);
+        }
 
         return () => {
             cancelAnimationFrame(animationFrameId);
@@ -143,7 +148,7 @@ export default function LocalMultiplayer() {
             document.removeEventListener("keyup", handleKeyUp);
         };
 
-    }, [gameState]);
+    }, [gameState, isPaused]);
 
     useEffect(() => {
         if (p1Points === 0 && p2Points === 0) return;
@@ -158,6 +163,7 @@ export default function LocalMultiplayer() {
     }, [p1Points, p2Points, maxScore, player1Name, player2Name]);
 
     const handleStartGame = () => {
+        setIsPaused(false);
         setP1Points(0);
         setP2Points(0);
         setWinner(null);
@@ -165,7 +171,26 @@ export default function LocalMultiplayer() {
     };
 
     const handlePlayAgain = () => {
+        setIsPaused(false);
         setGameState('setup');
+    };
+
+    const drawPauseScreen = (ctx: CanvasRenderingContext2D) => {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "white";
+        ctx.font = "50px 'Press Start 2P', monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("PAUSED", W / 2, H / 2);
+    };
+
+    const handlePause = () => {
+        const newPausedState = !isPaused;
+        setIsPaused(newPausedState);
+
+        if (newPausedState && ctxRef.current) {
+            drawPauseScreen(ctxRef.current);
+        }
     };
 
     return (
@@ -186,17 +211,21 @@ export default function LocalMultiplayer() {
             )}
 
             {gameState === 'playing' && (
-                <>
-                    <div className='flex justify-around w-5/6'>
-                        <div>
-                            <p className='text-xl'>{player1Name}</p>
-                        </div>
-                        <div>
-                            <p className='text-xl'>{player2Name}</p>
-                        </div>
+                <div className='flex flex-col items-center mb-4 gap-4'>
+                    <div className='flex justify-around w-full' style={{ width: W }}>
+                        <p className='text-xl'>{player1Name}</p>
+                        <p className='text-xl'>{player2Name}</p>
                     </div>
                     <canvas ref={canvasRef} width={W} height={H} className="border-2 border-white" />
-                </>
+                    <div className='flex justify-around w-full' style={{ width: W }}>
+                        <button onClick={handlePause} className="text-2xl hover:text-yellow-400 transition-colors duration-200">
+                            {isPaused ? 'Resume' : 'Pause'}
+                        </button>
+                        <button onClick={() => navigate('/')} className="text-2xl hover:text-red-500 transition-colors duration-200">
+                            Go Back
+                        </button>
+                    </div>
+                </div>
             )}
 
             {gameState === 'gameOver' && (
@@ -204,7 +233,7 @@ export default function LocalMultiplayer() {
                     <h1 className="text-5xl text-yellow-400">Winner!</h1>
                     <p className="text-3xl">{winner}</p>
                     <button onClick={handlePlayAgain} className="text-2xl hover:text-green-400 transition-colors duration-200">Play Again</button>
-                    <button onClick={() => navigate('/')} className="text-2xl hover:text-green-400 transition-colors duration-200">Home</button>
+                    <button onClick={() => navigate('/')} className="text-2xl hover:text-red-500 transition-colors duration-200">Home</button>
                 </div>
             )}
         </div>
