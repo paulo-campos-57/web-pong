@@ -7,6 +7,7 @@ const P_W = 20;
 const P_H = 200;
 const P1_X = 10;
 const P2_X = W - P_W - 10;
+const INITIAL_BALL_SPEED = 6;
 
 export default function LocalMultiplayer() {
     const navigate = useNavigate();
@@ -31,6 +32,7 @@ export default function LocalMultiplayer() {
         ball_y: H / 2 - 10,
         ball_x_orientation: 0,
         ball_y_orientation: 0,
+        ball_speed: INITIAL_BALL_SPEED,
         p1_key: null as number | null,
         p2_key: null as number | null,
         p1_points: 0,
@@ -50,6 +52,7 @@ export default function LocalMultiplayer() {
         const initBall = () => {
             game.current.ball_x = W / 2 - 10;
             game.current.ball_y = H / 2 - 10;
+            game.current.ball_speed = INITIAL_BALL_SPEED;
             game.current.ball_x_orientation = Math.random() > 0.5 ? 1 : -1;
             game.current.ball_y_orientation = Math.random() > 0.5 ? 1 : -1;
         };
@@ -91,8 +94,8 @@ export default function LocalMultiplayer() {
             if (game.current.p2_key === 38 && game.current.p2_y > 0) game.current.p2_y -= 8;
             if (game.current.p2_key === 40 && game.current.p2_y + P_H < H) game.current.p2_y += 8;
 
-            game.current.ball_x += 6 * game.current.ball_x_orientation;
-            game.current.ball_y += 6 * game.current.ball_y_orientation;
+            game.current.ball_x += game.current.ball_speed * game.current.ball_x_orientation;
+            game.current.ball_y += game.current.ball_speed * game.current.ball_y_orientation;
 
             if (game.current.ball_y + 10 >= H || game.current.ball_y <= 0) {
                 game.current.ball_y_orientation *= -1;
@@ -101,8 +104,10 @@ export default function LocalMultiplayer() {
             const ball = game.current;
             if (ball.ball_x < P1_X + P_W && ball.ball_x + 10 > P1_X && ball.ball_y < ball.p1_y + P_H && ball.ball_y + 10 > ball.p1_y) {
                 ball.ball_x_orientation = 1;
+                ball.ball_speed += 0.5;
             } else if (ball.ball_x < P2_X + P_W && ball.ball_x + 10 > P2_X && ball.ball_y < ball.p2_y + P_H && ball.ball_y + 10 > ball.p2_y) {
                 ball.ball_x_orientation = -1;
+                ball.ball_speed += 0.5;
             }
 
             if (game.current.ball_x + 10 > W) {
