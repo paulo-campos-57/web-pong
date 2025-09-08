@@ -37,6 +37,8 @@ export default function LocalMultiplayer() {
         p2_key: null as number | null,
         p1_points: 0,
         p2_points: 0,
+        p1_score_animation: 0,
+        p2_score_animation: 0,
     });
 
     useEffect(() => {
@@ -74,9 +76,23 @@ export default function LocalMultiplayer() {
 
         const writePoints = () => {
             ctx.font = "50px 'Press Start 2P', monospace";
-            ctx.fillStyle = "#fff";
-            ctx.fillText(String(game.current.p1_points), W / 4, 50);
-            ctx.fillText(String(game.current.p2_points), 3 * (W / 4), 50);
+            ctx.textAlign = 'center';
+
+            if (game.current.p1_score_animation > 0) {
+                ctx.fillStyle = "#facc15";
+                game.current.p1_score_animation--;
+            } else {
+                ctx.fillStyle = "#fff";
+            }
+            ctx.fillText(String(game.current.p1_points), W / 4, 80);
+
+            if (game.current.p2_score_animation > 0) {
+                ctx.fillStyle = "#facc15";
+                game.current.p2_score_animation--;
+            } else {
+                ctx.fillStyle = "#fff";
+            }
+            ctx.fillText(String(game.current.p2_points), 3 * (W / 4), 80);
         };
 
         const draw = () => {
@@ -116,6 +132,7 @@ export default function LocalMultiplayer() {
                     game.current.p1_points = newScore;
                     return newScore;
                 });
+                game.current.p1_score_animation = 30;
                 initBall();
             } else if (game.current.ball_x < 0) {
                 setP2Points(prev => {
@@ -123,6 +140,7 @@ export default function LocalMultiplayer() {
                     game.current.p2_points = newScore;
                     return newScore;
                 });
+                game.current.p2_score_animation = 30;
                 initBall();
             }
 
