@@ -21,6 +21,10 @@ export default function Index() {
                         onClick={() => navigate('/local-multiplayer')}>
                         Play Local Multiplayer
                     </div>
+                    <div className="text-white hover:text-blue-400 cursor-pointer"
+                        onClick={() => navigate('/about')}>
+                        About the site
+                    </div>
                 </div>
             </div >
         </>
