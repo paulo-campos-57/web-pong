@@ -14,7 +14,8 @@ export default function Index() {
                 />
 
                 <div className="mt-16 flex flex-col space-y-4 text-center text-2xl">
-                    <div className="text-white hover:text-blue-400 cursor-pointer">
+                    <div className="text-white hover:text-blue-400 cursor-pointer"
+                        onClick={() => navigate('/single-player')}>
                         Play Single Player
                     </div>
                     <div className="text-white hover:text-blue-400 cursor-pointer"
